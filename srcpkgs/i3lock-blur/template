@@ -1,0 +1,24 @@
+# Template file for 'i3lock-blur'
+pkgname=i3lock-blur
+version=2.9
+revision=1
+hostmakedepends="pkg-config"
+makedepends="libev-devel cairo-devel pam-devel libxkbcommon-devel
+ xcb-util-devel xcb-util-image-devel"
+conf_files="/etc/pam.d/i3lock"
+short_desc="i3lock with a twist"
+maintainer="Juan RP <xtraeme@voidlinux.eu>"
+license="BSD-3-clause"
+homepage="https://github.com/karulont/i3lock-blur"
+distfiles="https://github.com/karulont/i3lock-blur/archive/${version}.tar.gz"
+checksum=c117b1365f16f21794e5ee17e3022f19df646e8c5cbcb2789b03596b475fb82f
+conflicts="i3lock"
+
+do_build() {
+	sed -i 's:login:system-auth:' i3lock.pam
+	make CC=$CC ${makejobs}
+}
+do_install() {
+	make PREFIX=/usr DESTDIR=${DESTDIR} install
+	vman i3lock.1
+}
