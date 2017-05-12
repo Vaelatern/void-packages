@@ -1,0 +1,97 @@
+From bb3bd6fec37174e8d4bb9457ca815c00609e5157 Mon Sep 17 00:00:00 2001
+From: Anselm R Garbe <garbeam@gmail.com>
+Date: Mon, 5 Dec 2016 10:16:46 +0100
+Subject: [PATCH 14/23] applied Markus' tagset purge of alternative view on
+ _NET_ACTIVE_WINDOW event
+
+---
+ dwm.c | 38 ++++++++++++++++++--------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
+
+diff --git dwm.c dwm.c
+index ca6f679..d27cb67 100644
+--- dwm.c
++++ dwm.c
+@@ -153,7 +153,6 @@ static void buttonpress(XEvent *e);
+ static void checkotherwm(void);
+ static void cleanup(void);
+ static void cleanupmon(Monitor *mon);
+-static void clearurgent(Client *c);
+ static void clientmessage(XEvent *e);
+ static void configure(Client *c);
+ static void configurenotify(XEvent *e);
+@@ -204,6 +203,7 @@ static void setfullscreen(Client *c, int fullscreen);
+ static void setlayout(const Arg *arg);
+ static void setmfact(const Arg *arg);
+ static void setup(void);
++static void seturgent(Client *c, int urg);
+ static void showhide(Client *c);
+ static void sigchld(int unused);
+ static void spawn(const Arg *arg);
+@@ -509,19 +509,6 @@ cleanupmon(Monitor *mon)
+ }
+
+ void
+-clearurgent(Client *c)
+-{
+-	XWMHints *wmh;
+-
+-	c->isurgent = 0;
+-	if (!(wmh = XGetWMHints(dpy, c->win)))
+-		return;
+-	wmh->flags &= ~XUrgencyHint;
+-	XSetWMHints(dpy, c->win, wmh);
+-	XFree(wmh);
+-}
+-
+-void
+ clientmessage(XEvent *e)
+ {
+ 	XClientMessageEvent *cme = &e->xclient;
+@@ -534,11 +521,8 @@ clientmessage(XEvent *e)
+ 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
+ 			              || (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
+ 	} else if (cme->message_type == netatom[NetActiveWindow]) {
+-		if (!ISVISIBLE(c)) {
+-			c->mon->seltags ^= 1;
+-			c->mon->tagset[c->mon->seltags] = c->tags;
+-		}
+-		pop(c);
++		if (c != selmon->sel && !c->isurgent)
++			seturgent(c, 1);
+ 	}
+ }
+
+@@ -806,7 +790,7 @@ focus(Client *c)
+ 		if (c->mon != selmon)
+ 			selmon = c->mon;
+ 		if (c->isurgent)
+-			clearurgent(c);
++			seturgent(c, 0);
+ 		detachstack(c);
+ 		attachstack(c);
+ 		grabbuttons(c, 1);
+@@ -1616,6 +1600,20 @@ setup(void)
+ 	focus(NULL);
+ }
+
++
++void
++seturgent(Client *c, int urg)
++{
++	XWMHints *wmh;
++
++	c->isurgent = urg;
++	if (!(wmh = XGetWMHints(dpy, c->win)))
++		return;
++	wmh->flags = urg ? (wmh->flags | XUrgencyHint) : (wmh->flags & ~XUrgencyHint);
++	XSetWMHints(dpy, c->win, wmh);
++	XFree(wmh);
++}
++
+ void
+ showhide(Client *c)
+ {
+--
+2.11.1
+

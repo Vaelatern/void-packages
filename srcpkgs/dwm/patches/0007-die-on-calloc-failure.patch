@@ -1,0 +1,26 @@
+From 24849acada79977cea6acd2d8741d2bd00891ff6 Mon Sep 17 00:00:00 2001
+From: Hiltjo Posthuma <hiltjo@codemadness.org>
+Date: Sat, 5 Nov 2016 11:34:52 +0100
+Subject: [PATCH 07/23] die() on calloc failure
+
+thanks Markus Teich and David!
+---
+ util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git util.c util.c
+index b0612af..fe044fc 100644
+--- util.c
++++ util.c
+@@ -12,7 +12,7 @@ ecalloc(size_t nmemb, size_t size)
+ 	void *p;
+
+ 	if (!(p = calloc(nmemb, size)))
+-		perror(NULL);
++		die("calloc:");
+ 	return p;
+ }
+
+--
+2.11.1
+

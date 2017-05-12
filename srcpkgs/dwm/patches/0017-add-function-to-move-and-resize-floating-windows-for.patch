@@ -1,0 +1,75 @@
+From 4665f9bb3e1c300a9537a2e7b54f2c1131df80a5 Mon Sep 17 00:00:00 2001
+From: Duncaen <mail@duncano.de>
+Date: Thu, 23 Jun 2016 22:06:34 +0200
+Subject: [PATCH 17/23] add function to move and resize floating windows for
+ key bindings
+
+---
+ dwm.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 44 insertions(+)
+
+diff --git dwm.c dwm.c
+index 6c7a512..2e081be 100644
+--- dwm.c
++++ dwm.c
+@@ -234,6 +234,10 @@ static int xerror(Display *dpy, XErrorEvent *ee);
+ static int xerrordummy(Display *dpy, XErrorEvent *ee);
+ static int xerrorstart(Display *dpy, XErrorEvent *ee);
+ static void zoom(const Arg *arg);
++static void movex(const Arg *arg);
++static void movey(const Arg *arg);
++static void resizew(const Arg *arg);
++static void resizeh(const Arg *arg);
+
+ /* variables */
+ static const char broken[] = "broken";
+@@ -2145,6 +2149,46 @@ zoom(const Arg *arg)
+ 	pop(c);
+ }
+
++void
++movex(const Arg *arg)
++{
++	Client *c = selmon->sel;
++
++	if (!c->isfloating)
++		return;
++	resize(c, c->x + arg->i, c->y, c->w, c->h, 1);
++}
++
++void
++movey(const Arg *arg)
++{
++	Client *c = selmon->sel;
++
++	if (!c->isfloating)
++		return;
++	resize(c, c->x, c->y + arg->i, c->w, c->h, 1);
++}
++
++void
++resizew(const Arg *arg)
++{
++	Client *c = selmon->sel;
++
++	if (!c->isfloating)
++		return;
++	resize(c, c->x, c->y, c->w + arg->i, c->h, 1);
++}
++
++void
++resizeh(const Arg *arg)
++{
++	Client *c = selmon->sel;
++
++	if (!c->isfloating)
++		return;
++	resize(c, c->x, c->y, c->w, c->h + arg->i, 1);
++}
++
+ int
+ main(int argc, char *argv[])
+ {
+--
+2.11.1
+

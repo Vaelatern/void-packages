@@ -1,0 +1,56 @@
+From fd72643111171778acb51e1d9a47f425848fb131 Mon Sep 17 00:00:00 2001
+From: Duncaen <mail@duncano.de>
+Date: Tue, 7 Feb 2017 16:23:11 +0100
+Subject: [PATCH 18/23] support _NET_SUPPORTING_WM_CHECK
+
+---
+ dwm.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git dwm.c dwm.c
+index 2e081be..431f3a3 100644
+--- dwm.c
++++ dwm.c
+@@ -61,7 +61,7 @@
+ /* enums */
+ enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
+ enum { SchemeNorm, SchemeSel }; /* color schemes */
+-enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
++enum { NetSupported, NetWMName, NetWMState, NetSupportingWMCheck, NetWMCheck,
+        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
+ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
+@@ -494,6 +494,7 @@ cleanup(void)
+ 	XSync(dpy, False);
+ 	XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
+ 	XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
++	XDeleteProperty(dpy, root, netatom[NetSupportingWMCheck]);
+ }
+
+ void
+@@ -1572,6 +1573,7 @@ setup(void)
+ 	wmatom[WMTakeFocus] = XInternAtom(dpy, "WM_TAKE_FOCUS", False);
+ 	netatom[NetActiveWindow] = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+ 	netatom[NetSupported] = XInternAtom(dpy, "_NET_SUPPORTED", False);
++	netatom[NetSupportingWMCheck] = XInternAtom(dpy, "_NET_SUPPORTING_WM_CHECK", False);
+ 	netatom[NetWMName] = XInternAtom(dpy, "_NET_WM_NAME", False);
+ 	netatom[NetWMState] = XInternAtom(dpy, "_NET_WM_STATE", False);
+ 	netatom[NetWMCheck] = XInternAtom(dpy, "_NET_SUPPORTING_WM_CHECK", False);
+@@ -1602,6 +1604,14 @@ setup(void)
+ 	XChangeProperty(dpy, root, netatom[NetSupported], XA_ATOM, 32,
+ 			PropModeReplace, (unsigned char *) netatom, NetLast);
+ 	XDeleteProperty(dpy, root, netatom[NetClientList]);
++	/* EWMH support for _NET_SUPPORTING_WM_CHECK */
++	XChangeProperty(dpy, root, netatom[NetSupportingWMCheck], XA_WINDOW,
++	                32, PropModeReplace, (unsigned char *)&mons->barwin, 1);
++	XChangeProperty(dpy, mons->barwin, netatom[NetSupportingWMCheck], XA_WINDOW,
++	                32, PropModeReplace, (unsigned char *)&mons->barwin, 1);
++	XChangeProperty(dpy, mons->barwin, netatom[NetWMName],
++	                XInternAtom(dpy, "UTF8_STRING", False), 8,
++	                PropModeReplace, (unsigned char *)"dwm", strlen("dwm"));
+ 	/* select for events */
+ 	wa.cursor = cursor[CurNormal]->cursor;
+ 	wa.event_mask = SubstructureRedirectMask|SubstructureNotifyMask|ButtonPressMask|PointerMotionMask
+--
+2.11.1
+

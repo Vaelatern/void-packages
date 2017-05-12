@@ -1,0 +1,77 @@
+From 975c8983762246b50026d43079c60a78b341f81c Mon Sep 17 00:00:00 2001
+From: Anselm R Garbe <garbeam@gmail.com>
+Date: Mon, 5 Dec 2016 10:01:33 +0100
+Subject: [PATCH 11/23] applied Markus' decouple color-scheme patch
+
+---
+ config.def.h |  2 +-
+ dwm.c        | 12 +++++++-----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git config.def.h config.def.h
+index fd77a07..ba9a240 100644
+--- config.def.h
++++ config.def.h
+@@ -12,7 +12,7 @@ static const char col_gray2[]       = "#444444";
+ static const char col_gray3[]       = "#bbbbbb";
+ static const char col_gray4[]       = "#eeeeee";
+ static const char col_cyan[]        = "#005577";
+-static const char *colors[SchemeLast][3]      = {
++static const char *colors[][3]      = {
+ 	/*               fg         bg         border   */
+ 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+ 	[SchemeSel] =  { col_gray4, col_cyan,  col_cyan  },
+diff --git dwm.c dwm.c
+index dbff59b..3d6cc28 100644
+--- dwm.c
++++ dwm.c
+@@ -60,7 +60,7 @@
+
+ /* enums */
+ enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
+-enum { SchemeNorm, SchemeSel, SchemeLast }; /* color schemes */
++enum { SchemeNorm, SchemeSel }; /* color schemes */
+ enum { NetSupported, NetWMName, NetWMState,
+        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
+@@ -263,7 +263,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
+ static Atom wmatom[WMLast], netatom[NetLast];
+ static int running = 1;
+ static Cur *cursor[CurLast];
+-static Scm scheme[SchemeLast];
++static Scm *scheme;
+ static Display *dpy;
+ static Drw *drw;
+ static Monitor *mons, *selmon;
+@@ -483,7 +483,7 @@ cleanup(void)
+ 		cleanupmon(mons);
+ 	for (i = 0; i < CurLast; i++)
+ 		drw_cur_free(drw, cursor[i]);
+-	for (i = 0; i < SchemeLast; i++)
++	for (i = 0; i < LENGTH(colors); i++)
+ 		free(scheme[i]);
+ 	drw_free(drw);
+ 	XSync(dpy, False);
+@@ -1549,6 +1549,7 @@ setmfact(const Arg *arg)
+ void
+ setup(void)
+ {
++	int i;
+ 	XSetWindowAttributes wa;
+
+ 	/* clean up any zombies immediately */
+@@ -1583,8 +1584,9 @@ setup(void)
+ 	cursor[CurResize] = drw_cur_create(drw, XC_sizing);
+ 	cursor[CurMove] = drw_cur_create(drw, XC_fleur);
+ 	/* init appearance */
+-	scheme[SchemeNorm] = drw_scm_create(drw, colors[SchemeNorm], 3);
+-	scheme[SchemeSel] = drw_scm_create(drw, colors[SchemeSel], 3);
++	scheme = ecalloc(LENGTH(colors), sizeof(Scm));
++	for (i = 0; i < LENGTH(colors); i++)
++		scheme[i] = drw_scm_create(drw, colors[i], 3);
+ 	/* init bars */
+ 	updatebars();
+ 	updatestatus();
+--
+2.11.1
+

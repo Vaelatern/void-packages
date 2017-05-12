@@ -1,0 +1,27 @@
+From a137a86a234476bc3c7128fecbf845e6fc1de995 Mon Sep 17 00:00:00 2001
+From: Anselm R Garbe <garbeam@gmail.com>
+Date: Mon, 5 Dec 2016 09:54:20 +0100
+Subject: [PATCH 10/23] applied Markus' clarify status text padding patch
+
+---
+ dwm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git dwm.c dwm.c
+index 421bf27..dbff59b 100644
+--- dwm.c
++++ dwm.c
+@@ -717,8 +717,8 @@ drawbar(Monitor *m)
+ 	/* draw status first so it can be overdrawn by tags later */
+ 	if (m == selmon) { /* status is only drawn on selected monitor */
+ 		drw_setscheme(drw, scheme[SchemeNorm]);
+-		sw = TEXTW(stext) - lrpad / 2; /* no right padding so status text hugs the corner */
+-		drw_text(drw, m->ww - sw, 0, sw, bh, lrpad / 2 - 2, stext, 0);
++		sw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
++		drw_text(drw, m->ww - sw, 0, sw, bh, 0, stext, 0);
+ 	}
+
+ 	for (c = m->clients; c; c = c->next) {
+--
+2.11.1
+

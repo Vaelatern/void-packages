@@ -1,0 +1,28 @@
+From 7a59cd14573b2ead4e69a609e27992f0b7493b19 Mon Sep 17 00:00:00 2001
+From: Quentin Rameau <quinq@fifth.space>
+Date: Mon, 14 Nov 2016 11:18:27 +0100
+Subject: [PATCH 08/23] dwm.1: add keybinding for spawning dmenu
+
+---
+ dwm.1 | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git dwm.1 dwm.1
+index 6687011..60ca1d6 100644
+--- dwm.1
++++ dwm.1
+@@ -59,6 +59,11 @@ click on a tag label adds/removes that tag to/from the focused window.
+ Start
+ .BR st(1).
+ .TP
++.B Mod1\-p
++Spawn
++.BR dmenu(1)
++for launching other programs.
++.TP
+ .B Mod1\-,
+ Focus previous screen, if any.
+ .TP
+--
+2.11.1
+

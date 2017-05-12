@@ -1,0 +1,139 @@
+From a5bcd10d4282e04b9760911de3b1d726370f9639 Mon Sep 17 00:00:00 2001
+From: Duncaen <mail@duncano.de>
+Date: Wed, 2 Nov 2016 23:32:23 +0100
+Subject: [PATCH 15/23] unmap/map windows instead of moving them offscreen
+
+---
+ dwm.c | 38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
+
+diff --git dwm.c dwm.c
+index d27cb67..8870e19 100644
+--- dwm.c
++++ dwm.c
+@@ -93,7 +93,7 @@ struct Client {
+ 	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
+ 	int bw, oldbw;
+ 	unsigned int tags;
+-	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
++	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, ishidden;
+ 	Client *next;
+ 	Client *snext;
+ 	Monitor *mon;
+@@ -567,8 +567,8 @@ configurenotify(XEvent *e)
+ 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
+ 				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
+ 			}
+-			focus(NULL);
+ 			arrange(NULL);
++			focus(NULL);
+ 		}
+ 	}
+ }
+@@ -850,8 +850,8 @@ focusstack(const Arg *arg)
+ 					c = i;
+ 	}
+ 	if (c) {
+-		focus(c);
+ 		restack(selmon);
++		focus(c);
+ 	}
+ }
+
+@@ -1069,12 +1069,16 @@ manage(Window w, XWindowAttributes *wa)
+ 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
+ 	                (unsigned char *) &(c->win), 1);
+ 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
+-	setclientstate(c, NormalState);
++	XMoveWindow(dpy, c->win, c->x, c->y);
++	if ((c->ishidden = !ISVISIBLE(c)))
++		XUnmapWindow(dpy, c->win);
++	else
++		XMapWindow(dpy, c->win);
++	setclientstate(c, c->ishidden ? IconicState : NormalState);
+ 	if (c->mon == selmon)
+ 		unfocus(selmon->sel, 0);
+ 	c->mon->sel = c;
+ 	arrange(c->mon);
+-	XMapWindow(dpy, c->win);
+ 	focus(NULL);
+ }
+
+@@ -1209,8 +1213,8 @@ pop(Client *c)
+ {
+ 	detach(c);
+ 	attach(c);
+-	focus(c);
+ 	arrange(c->mon);
++	focus(c);
+ }
+
+ void
+@@ -1424,8 +1428,8 @@ sendmon(Client *c, Monitor *m)
+ 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
+ 	attach(c);
+ 	attachstack(c);
+-	focus(NULL);
+ 	arrange(NULL);
++	focus(NULL);
+ }
+
+ void
+@@ -1621,14 +1625,20 @@ showhide(Client *c)
+ 		return;
+ 	if (ISVISIBLE(c)) {
+ 		/* show clients top down */
+-		XMoveWindow(dpy, c->win, c->x, c->y);
+-		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
+-			resize(c, c->x, c->y, c->w, c->h, 0);
++		if (c->ishidden) {
++			XMapWindow(dpy, c->win);
++			setclientstate(c, NormalState);
++			c->ishidden = 0;
++		}
+ 		showhide(c->snext);
+ 	} else {
+ 		/* hide clients bottom up */
+ 		showhide(c->snext);
+-		XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
++		if (!c->ishidden) {
++			XUnmapWindow(dpy, c->win);
++			setclientstate(c, IconicState);
++			c->ishidden = 1;
++		}
+ 	}
+ }
+
+@@ -1784,9 +1794,9 @@ unmanage(Client *c, int destroyed)
+ 		XUngrabServer(dpy);
+ 	}
+ 	free(c);
+-	focus(NULL);
+ 	updateclientlist();
+ 	arrange(m);
++	focus(NULL);
+ }
+
+ void
+@@ -1798,7 +1808,7 @@ unmapnotify(XEvent *e)
+ 	if ((c = wintoclient(ev->window))) {
+ 		if (ev->send_event)
+ 			setclientstate(c, WithdrawnState);
+-		else
++		else if (!c->ishidden)
+ 			unmanage(c, 0);
+ 	}
+ }
+@@ -2047,8 +2057,8 @@ view(const Arg *arg)
+ 	selmon->seltags ^= 1; /* toggle sel tagset */
+ 	if (arg->ui & TAGMASK)
+ 		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
+-	focus(NULL);
+ 	arrange(selmon);
++	focus(NULL);
+ }
+
+ Client *
+--
+2.11.1
+

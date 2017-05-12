@@ -1,0 +1,97 @@
+From ab9571bbc5f6fb04fd583238a665a7e830fc1397 Mon Sep 17 00:00:00 2001
+From: Hiltjo Posthuma <hiltjo@codemadness.org>
+Date: Fri, 12 Aug 2016 14:35:25 +0200
+Subject: [PATCH 06/23] die() consistency: always add newline
+
+---
+ drw.c  |  6 +++---
+ dwm.c  | 10 +++++-----
+ util.c |  2 ++
+ 3 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git drw.c drw.c
+index 987e53b..319eb6b 100644
+--- drw.c
++++ drw.c
+@@ -129,7 +129,7 @@ xfont_create(Drw *drw, const char *fontname, FcPattern *fontpattern)
+ 			return NULL;
+ 		}
+ 	} else {
+-		die("no font specified.\n");
++		die("no font specified.");
+ 	}
+
+ 	font = ecalloc(1, sizeof(Fnt));
+@@ -188,7 +188,7 @@ drw_clr_create(Drw *drw, XftColor *dest, const char *clrname)
+ 	if (!XftColorAllocName(drw->dpy, DefaultVisual(drw->dpy, drw->screen),
+ 	                       DefaultColormap(drw->dpy, drw->screen),
+ 	                       clrname, dest))
+-		die("error, cannot allocate color '%s'\n", clrname);
++		die("error, cannot allocate color '%s'", clrname);
+ }
+
+ /* Wrapper to create color schemes. The caller has to call free(3) on the
+@@ -331,7 +331,7 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lp
+
+ 			if (!drw->fonts->pattern) {
+ 				/* Refer to the comment in xfont_create for more information. */
+-				die("the first font in the cache must be loaded from a font string.\n");
++				die("the first font in the cache must be loaded from a font string.");
+ 			}
+
+ 			fcpattern = FcPatternDuplicate(drw->fonts->pattern);
+diff --git dwm.c dwm.c
+index b2bc9bd..421bf27 100644
+--- dwm.c
++++ dwm.c
+@@ -1561,7 +1561,7 @@ setup(void)
+ 	root = RootWindow(dpy, screen);
+ 	drw = drw_create(dpy, screen, root, sw, sh);
+ 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
+-		die("no fonts could be loaded.\n");
++		die("no fonts could be loaded.");
+ 	lrpad = drw->fonts->h;
+ 	bh = drw->fonts->h + 2;
+ 	updategeom();
+@@ -2101,7 +2101,7 @@ xerrordummy(Display *dpy, XErrorEvent *ee)
+ int
+ xerrorstart(Display *dpy, XErrorEvent *ee)
+ {
+-	die("dwm: another window manager is already running\n");
++	die("dwm: another window manager is already running");
+ 	return -1;
+ }
+
+@@ -2123,13 +2123,13 @@ int
+ main(int argc, char *argv[])
+ {
+ 	if (argc == 2 && !strcmp("-v", argv[1]))
+-		die("dwm-"VERSION "\n");
++		die("dwm-"VERSION);
+ 	else if (argc != 1)
+-		die("usage: dwm [-v]\n");
++		die("usage: dwm [-v]");
+ 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
+ 		fputs("warning: no locale support\n", stderr);
+ 	if (!(dpy = XOpenDisplay(NULL)))
+-		die("dwm: cannot open display\n");
++		die("dwm: cannot open display");
+ 	checkotherwm();
+ 	setup();
+ 	scan();
+diff --git util.c util.c
+index 6b703e9..b0612af 100644
+--- util.c
++++ util.c
+@@ -27,6 +27,8 @@ die(const char *fmt, ...) {
+ 	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
+ 		fputc(' ', stderr);
+ 		perror(NULL);
++	} else {
++		fputc('\n', stderr);
+ 	}
+
+ 	exit(1);
+--
+2.11.1
+

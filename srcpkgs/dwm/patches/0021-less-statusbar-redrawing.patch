@@ -1,0 +1,62 @@
+From 974bb0a4134822cdcb3d08f63e46d12893e27d83 Mon Sep 17 00:00:00 2001
+From: Duncaen <mail@duncano.de>
+Date: Sat, 11 Feb 2017 04:18:07 +0100
+Subject: [PATCH 21/23] less statusbar redrawing
+
+---
+ dwm.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git dwm.c dwm.c
+index 9f692a5..db07ed8 100644
+--- dwm.c
++++ dwm.c
+@@ -1257,7 +1257,6 @@ propertynotify(XEvent *e)
+ 			break;
+ 		case XA_WM_HINTS:
+ 			updatewmhints(c);
+-			drawbars();
+ 			break;
+ 		}
+ 		if (ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName]) {
+@@ -1377,7 +1376,6 @@ restack(Monitor *m)
+ 	XEvent ev;
+ 	XWindowChanges wc;
+
+-	drawbar(m);
+ 	if (!m->sel)
+ 		return;
+ 	if (m->sel->isfloating || !m->lt[m->sellt]->arrange)
+@@ -1533,8 +1531,7 @@ setlayout(const Arg *arg)
+ 	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
+ 	if (selmon->sel)
+ 		arrange(selmon);
+-	else
+-		drawbar(selmon);
++	drawbar(selmon);
+ }
+
+ /* arg > 1.0 will set mfact absolutly */
+@@ -1757,6 +1754,7 @@ togglefloating(const Arg *arg)
+ 		resize(selmon->sel, selmon->sel->x, selmon->sel->y,
+ 		       selmon->sel->w, selmon->sel->h, 0, 0);
+ 	arrange(selmon);
++	drawbar(selmon);
+ }
+
+ void
+@@ -2067,8 +2065,10 @@ updatewmhints(Client *c)
+ 			XSetWMHints(dpy, c->win, wmh);
+ 		} else {
+ 			c->isurgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
+-			if (c->isurgent)
++			if (c->isurgent) {
+ 				XSetWindowBorder(dpy, c->win, scheme[SchemeUrg][ColBorder].pixel);
++				drawbar(c->mon);
++			}
+ 		}
+ 		if (wmh->flags & InputHint)
+ 			c->neverfocus = !wmh->input;
+--
+2.11.1
+

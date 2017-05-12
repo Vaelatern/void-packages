@@ -1,0 +1,43 @@
+From 3465bed290abc62cb2e69a8096084ba6b8eb4956 Mon Sep 17 00:00:00 2001
+From: Hiltjo Posthuma <hiltjo@codemadness.org>
+Date: Sat, 19 Dec 2015 20:25:26 +0100
+Subject: [PATCH 02/23] fix fullscreen clients not resized on X display
+ resolution change
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+patch provided by Bert Münnich <ber.t_AT_posteo.de>, thanks!
+---
+ dwm.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git dwm.c dwm.c
+index 0362114..ff7e096 100644
+--- dwm.c
++++ dwm.c
+@@ -565,6 +565,7 @@ void
+ configurenotify(XEvent *e)
+ {
+ 	Monitor *m;
++	Client *c;
+ 	XConfigureEvent *ev = &e->xconfigure;
+ 	int dirty;
+
+@@ -576,8 +577,12 @@ configurenotify(XEvent *e)
+ 		if (updategeom() || dirty) {
+ 			drw_resize(drw, sw, bh);
+ 			updatebars();
+-			for (m = mons; m; m = m->next)
++			for (m = mons; m; m = m->next) {
++				for (c = m->clients; c; c = c->next)
++					if (c->isfullscreen)
++						resizeclient(c, m->mx, m->my, m->mw, m->mh);
+ 				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
++			}
+ 			focus(NULL);
+ 			arrange(NULL);
+ 		}
+--
+2.11.1
+

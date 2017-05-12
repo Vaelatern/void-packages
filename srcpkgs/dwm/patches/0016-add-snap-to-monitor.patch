@@ -1,0 +1,36 @@
+From 7a0d4d2391420ce75c2f3590048df19d7c8e702a Mon Sep 17 00:00:00 2001
+From: Duncaen <mail@duncano.de>
+Date: Thu, 23 Jun 2016 04:19:01 +0200
+Subject: [PATCH 16/23] add snap to monitor
+
+---
+ dwm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git dwm.c dwm.c
+index 8870e19..6c7a512 100644
+--- dwm.c
++++ dwm.c
+@@ -1175,7 +1175,7 @@ movemouse(const Arg *arg)
+ 			nx = ocx + (ev.xmotion.x - x);
+ 			ny = ocy + (ev.xmotion.y - y);
+ 			if (nx >= selmon->wx && nx <= selmon->wx + selmon->ww
+-			&& ny >= selmon->wy && ny <= selmon->wy + selmon->wh) {
++			&& ny >= selmon->my && ny <= selmon->my + selmon->mh) {
+ 				if (abs(selmon->wx - nx) < snap)
+ 					nx = selmon->wx;
+ 				else if (abs((selmon->wx + selmon->ww) - (nx + WIDTH(c))) < snap)
+@@ -1184,6 +1184,10 @@ movemouse(const Arg *arg)
+ 					ny = selmon->wy;
+ 				else if (abs((selmon->wy + selmon->wh) - (ny + HEIGHT(c))) < snap)
+ 					ny = selmon->wy + selmon->wh - HEIGHT(c);
++				if (abs(selmon->my - ny) < snap)
++					ny = selmon->my;
++				else if (abs((selmon->wy + selmon->mh) - (ny + HEIGHT(c))) < snap)
++					ny = selmon->my + selmon->mh - HEIGHT(c);
+ 				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
+ 				&& (abs(nx - c->x) > snap || abs(ny - c->y) > snap))
+ 					togglefloating(NULL);
+--
+2.11.1
+

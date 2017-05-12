@@ -1,0 +1,46 @@
+From cd2d7549b3ae5ec234b45d85608f79f4d3aaa851 Mon Sep 17 00:00:00 2001
+From: Eric Pruitt <eric.pruitt@gmail.com>
+Date: Wed, 25 May 2016 16:33:11 -0700
+Subject: [PATCH 03/23] Configure geometry before applying rules
+
+Configuring geometry before applying rules makes it possible to have
+more complex constraints in applyrules that depend on the initial window
+dimensions and location.
+---
+ dwm.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git dwm.c dwm.c
+index ff7e096..9585683 100644
+--- dwm.c
++++ dwm.c
+@@ -1043,6 +1043,13 @@ manage(Window w, XWindowAttributes *wa)
+
+ 	c = ecalloc(1, sizeof(Client));
+ 	c->win = w;
++	/* geometry */
++	c->x = c->oldx = wa->x;
++	c->y = c->oldy = wa->y;
++	c->w = c->oldw = wa->width;
++	c->h = c->oldh = wa->height;
++	c->oldbw = wa->border_width;
++
+ 	updatetitle(c);
+ 	if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
+ 		c->mon = t->mon;
+@@ -1051,12 +1058,6 @@ manage(Window w, XWindowAttributes *wa)
+ 		c->mon = selmon;
+ 		applyrules(c);
+ 	}
+-	/* geometry */
+-	c->x = c->oldx = wa->x;
+-	c->y = c->oldy = wa->y;
+-	c->w = c->oldw = wa->width;
+-	c->h = c->oldh = wa->height;
+-	c->oldbw = wa->border_width;
+
+ 	if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
+ 		c->x = c->mon->mx + c->mon->mw - WIDTH(c);
+--
+2.11.1
+

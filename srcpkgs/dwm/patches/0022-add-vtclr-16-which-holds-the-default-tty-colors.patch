@@ -1,0 +1,80 @@
+From 2aa12ecafe5477be2c7f3e1d3bf1674b9dd05b64 Mon Sep 17 00:00:00 2001
+From: Duncaen <mail@duncano.de>
+Date: Sat, 11 Feb 2017 19:53:51 +0100
+Subject: [PATCH 22/23] add vtclr[16] which holds the default tty colors
+
+---
+ dwm.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git dwm.c dwm.c
+index db07ed8..5c9c21d 100644
+--- dwm.c
++++ dwm.c
+@@ -273,6 +273,8 @@ static Drw *drw;
+ static Monitor *mons, *selmon;
+ static Window root, wmcheckwin;
+
++static char vtclr[16][8];
++
+ /* configuration, allows nested code to access above variables */
+ #include "config.h"
+
+@@ -2090,6 +2092,46 @@ view(const Arg *arg)
+ 	focus(NULL);
+ }
+
++static void
++vtcolors(void)
++{
++	char buf[64];
++	int rgb[3][16];
++	char path[] = "/sys/module/vt/parameters/default_???";
++	FILE *fp;
++	char *p, *suffix;
++	int *clr;
++	int i;
++
++	suffix = "redgrnblu";
++	memset(rgb, 0, sizeof rgb);
++
++	for (clr = *rgb; clr < rgb[3];) {
++		path[34] = *suffix++;
++		path[35] = *suffix++;
++		path[36] = *suffix++;
++
++		if (!(fp = fopen(path, "r")))
++			die("can't open: %s\n", path);
++
++		fgets(buf, sizeof buf, fp);
++		if (feof(fp) || ferror(fp))
++			die("can't read colors: %s\n", path);
++
++		for (p = buf; *p && clr < rgb[3]+16; p++) {
++			if (*p >= '0' && *p <= '9')
++				*clr = (*clr) * 10 + (*p) - '0';
++			else
++				clr++;
++		}
++
++		fclose(fp);
++	}
++
++	for (i = 0; i < 16; i++)
++		snprintf(vtclr[i], 8, "#%02x%02x%02x", rgb[0][i], rgb[1][i], rgb[2][i]);
++}
++
+ Client *
+ wintoclient(Window w)
+ {
+@@ -2221,6 +2263,7 @@ main(int argc, char *argv[])
+ 		fputs("warning: no locale support\n", stderr);
+ 	if (!(dpy = XOpenDisplay(NULL)))
+ 		die("dwm: cannot open display");
++	vtcolors();
+ 	checkotherwm();
+ 	setup();
+ 	scan();
+--
+2.11.1
+
