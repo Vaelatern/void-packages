@@ -1,0 +1,125 @@
+# Template file for 'dxpb'
+pkgname=dxpb
+version=0.0.10
+revision=1
+wrksrc=dxpb-master
+build_wrksrc=src
+build_style=gnu-makefile
+hostmakedepends="go git dep pkg-config"
+makedepends="zeromq-devel czmq-devel libxbps-devel sqlite-devel libsodium-devel
+ libbsd-devel libgit2-devel graphviz-devel"
+make_install_target="install install-runit-scripts"
+short_desc="Distributed XBPS Package Builder"
+maintainer="Toyam Cox <Vaelatern@voidlinux.eu>"
+license="ISC"
+homepage="https://gitlab.com/dxpb/dxpb"
+distfiles="https://gitlab.com/dxpb/dxpb/repository/${version}/archive.tar.gz>${pkgname}-${version}.tgz"
+checksum=346bff6fbf6bee706d25cfd9cfb26f08c30d93ad8946d15b734b116887b41aaa
+
+system_groups="_dxpb _dxpb_graph _dxpb_ssl"
+system_accounts="_dxpb_import _dxpb_frontend _dxpb_filer _dxpb_build _dxpb_grapher _dxpb_watcher"
+
+_dxpb_grapher_groups="_dxpb,_dxpb_import,_dxpb_filer,_dxpb_graph,_dxpb_ssl"
+_dxpb_import_groups="_dxpb"
+_dxpb_frontend_groups="_dxpb"
+_dxpb_filer_groups="_dxpb"
+_dxpb_build_groups="_dxpb"
+
+if [ "$CROSS_BUILD" ]; then
+	hostmakedepends+=" go-cross-linux"
+fi
+
+# Fix for being a gitlab upstream
+create_wrksrc=yes
+do_extract() {
+	tar -x --no-same-permissions --no-same-owner --strip-components=1 -f $XBPS_SRCDISTDIR/${pkgname}-${version}/${pkgname}-${version}.tgz -C $wrksrc
+}
+# End Of Fix
+
+post_build() {
+	# Do the go build style
+
+	cd ../go/ircbot
+	local go_import_path=gitlab.com/Vaelatern/dxpb/go/ircbot
+
+	mkdir -p $(dirname src/${go_import_path})
+	ln -rs ./ src/${go_import_path}
+	cd src/${go_import_path}
+	export GOPATH=$(pwd)
+	cd src/${go_import_path}
+
+	dep ensure
+	go get -x ${go_import_path}
+	cd ${wrksrc}/${build_wrksrc}
+}
+
+post_install() {
+	vlicense ../COPYING
+	rm -rf ${DESTDIR}/var/run
+	vbin ../go/ircbot/bin/ircbot dxpb-ircbot
+	vmkdir etc/dxpb
+	vinstall ../go/ircbot/conf.yml.example 0644 etc/dxpb conf.yml
+	vinstall ../runsv/sv-common 0644 etc/dxpb
+}
+
+dxpb-main_package() {
+	short_desc="${short_desc} - grapher core"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/bin/dxpb-graph-to-dot
+		vmove usr/bin/dxpb-poke
+		vmove usr/bin/dxpb-pkgimport-*
+		vmove usr/bin/dxpb-grapher
+		vmove etc/sv/dxpb-pkgimport-*
+		vmove etc/sv/dxpb-grapher
+	}
+}
+
+dxpb-repoman_package() {
+	short_desc="${short_desc} - repository manager"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/bin/dxpb-hostdir-master
+		vmove etc/sv/dxpb-hostdir-master
+	}
+}
+
+dxpb-server_package() {
+	short_desc="${short_desc} - publicly bindable server"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/bin/dxpb-frontend
+		vmove etc/sv/dxpb-frontend
+	}
+}
+
+dxpb-ircbot_package() {
+	nopie="Go doesn't yet do PIE"
+	short_desc="${short_desc} - IRC Daemon"
+	conf_files="/etc/dxpb/conf.yml"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/bin/dxpb-ircbot
+		vmove etc/dxpb/conf.yml
+		vmove etc/sv/dxpb-ircbot
+	}
+}
+
+dxpb-server-all_package() {
+	short_desc="${short_desc} - metapkg for all server pkgs"
+	build_style=meta
+	depends="dxpb-server>=${version}_${revision}
+	dxpb-repoman>=${version}_${revision} dxpb-main>=${version}_${revision}
+	dxpb-ircbot>=${version}_${revision}"
+}
+
+dxpb-remote_package() {
+	short_desc="${short_desc} - Remote Daemons"
+	depends="${sourcepkg}>=${version}_${revision}"
+	pkg_install() {
+		vmove usr/bin/dxpb-builder
+		vmove usr/bin/dxpb-hostdir-remote
+		vmove etc/sv/dxpb-builder
+		vmove etc/sv/dxpb-hostdir-remote
+	}
+}
