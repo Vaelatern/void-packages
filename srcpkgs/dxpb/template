@@ -36,27 +36,27 @@ do_extract() {
 }
 # End Of Fix
 
-post_build() {
-	# Do the go build style
-
-	cd ../go/ircbot
-	local go_import_path=gitlab.com/Vaelatern/dxpb/go/ircbot
-
-	mkdir -p $(dirname src/${go_import_path})
-	ln -rs ./ src/${go_import_path}
-	cd src/${go_import_path}
-	export GOPATH=$(pwd)
-	cd src/${go_import_path}
-
-	dep ensure
-	go get -x ${go_import_path}
-	cd ${wrksrc}/${build_wrksrc}
-}
+#post_build() {
+#	# Do the go build style
+#
+#	cd ../go/ircbot
+#	local go_import_path=gitlab.com/Vaelatern/dxpb/go/ircbot
+#
+#	mkdir -p $(dirname src/${go_import_path})
+#	ln -rs ./ src/${go_import_path}
+#	cd src/${go_import_path}
+#	export GOPATH=$(pwd)
+#	cd src/${go_import_path}
+#
+#	dep ensure
+#	go get -x ${go_import_path}
+#	cd ${wrksrc}/${build_wrksrc}
+#}
 
 post_install() {
 	vlicense ../COPYING
 	rm -rf ${DESTDIR}/var/run
-	vbin ../go/ircbot/bin/ircbot dxpb-ircbot
+#	vbin ../go/ircbot/bin/ircbot dxpb-ircbot
 	vmkdir etc/dxpb
 	vinstall ../go/ircbot/conf.yml.example 0644 etc/dxpb conf.yml
 	vinstall ../runsv/sv-common 0644 etc/dxpb
@@ -99,7 +99,7 @@ dxpb-ircbot_package() {
 	conf_files="/etc/dxpb/conf.yml"
 	depends="${sourcepkg}>=${version}_${revision}"
 	pkg_install() {
-		vmove usr/bin/dxpb-ircbot
+#		vmove usr/bin/dxpb-ircbot
 		vmove etc/dxpb/conf.yml
 		vmove etc/sv/dxpb-ircbot
 	}
