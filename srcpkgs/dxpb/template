@@ -1,6 +1,6 @@
 # Template file for 'dxpb'
 pkgname=dxpb
-version=0.0.10
+version=0.0.13
 revision=1
 wrksrc=dxpb-master
 build_wrksrc=src
@@ -14,7 +14,7 @@ maintainer="Toyam Cox <Vaelatern@voidlinux.eu>"
 license="ISC"
 homepage="https://gitlab.com/dxpb/dxpb"
 distfiles="https://gitlab.com/dxpb/dxpb/repository/${version}/archive.tar.gz>${pkgname}-${version}.tgz"
-checksum=346bff6fbf6bee706d25cfd9cfb26f08c30d93ad8946d15b734b116887b41aaa
+checksum=1bf0bd05573a6589eadf4acf0f7266e567a8f2217ffcfcb0eff2c0304d1912fd
 
 system_groups="_dxpb _dxpb_graph _dxpb_ssl"
 system_accounts="_dxpb_import _dxpb_frontend _dxpb_filer _dxpb_build _dxpb_grapher _dxpb_watcher"
@@ -24,6 +24,7 @@ _dxpb_import_groups="_dxpb"
 _dxpb_frontend_groups="_dxpb"
 _dxpb_filer_groups="_dxpb"
 _dxpb_build_groups="_dxpb"
+_dxpb_build_homedir="/var/lib/dxpb/buildhome"
 
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" go-cross-linux"
