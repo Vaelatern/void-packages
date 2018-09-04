@@ -1,20 +1,20 @@
 # Template file for 'dxpb'
 pkgname=dxpb
-version=0.0.17
+version=0.0.18
 revision=1
 wrksrc=dxpb-master
 build_wrksrc=src
 build_style=gnu-makefile
-hostmakedepends="go git dep pkg-config"
+hostmakedepends="pkg-config"
 makedepends="zeromq-devel czmq-devel libxbps-devel sqlite-devel libsodium-devel
- libbsd-devel libgit2-devel graphviz-devel"
+ libbsd-devel libgit2-devel graphviz-devel c-capnproto-devel"
 make_install_target="install install-runit-scripts"
 short_desc="Distributed XBPS Package Builder"
 maintainer="Toyam Cox <Vaelatern@voidlinux.eu>"
 license="ISC"
 homepage="https://gitlab.com/dxpb/dxpb"
 distfiles="https://gitlab.com/dxpb/dxpb/repository/${version}/archive.tar.gz>${pkgname}-${version}.tgz"
-checksum=32d301c7868a48daf99226a1c8c6354e44c76ac2be8f5e7f8f950a04902167ff
+checksum=5c8db985bcec1c99e1721ba931072cd0911b27a085c9facc811e1104969f56eb
 
 system_groups="_dxpb _dxpb_graph _dxpb_ssl"
 system_accounts="_dxpb_import _dxpb_frontend _dxpb_filer _dxpb_build _dxpb_grapher _dxpb_watcher"
@@ -26,10 +26,6 @@ _dxpb_filer_groups="_dxpb"
 _dxpb_build_groups="_dxpb"
 _dxpb_build_homedir="/var/lib/dxpb/buildhome"
 
-if [ "$CROSS_BUILD" ]; then
-	hostmakedepends+=" go-cross-linux"
-fi
-
 # Fix for being a gitlab upstream
 create_wrksrc=yes
 do_extract() {
@@ -37,29 +33,10 @@ do_extract() {
 }
 # End Of Fix
 
-#post_build() {
-#	# Do the go build style
-#
-#	cd ../go/ircbot
-#	local go_import_path=gitlab.com/Vaelatern/dxpb/go/ircbot
-#
-#	mkdir -p $(dirname src/${go_import_path})
-#	ln -rs ./ src/${go_import_path}
-#	cd src/${go_import_path}
-#	export GOPATH=$(pwd)
-#	cd src/${go_import_path}
-#
-#	dep ensure
-#	go get -x ${go_import_path}
-#	cd ${wrksrc}/${build_wrksrc}
-#}
-
 post_install() {
 	vlicense ../COPYING
 	rm -rf ${DESTDIR}/var/run
-#	vbin ../go/ircbot/bin/ircbot dxpb-ircbot
 	vmkdir etc/dxpb
-	vinstall ../go/ircbot/conf.yml.example 0644 etc/dxpb conf.yml
 	vinstall ../runsv/sv-common 0644 etc/dxpb
 }
 
@@ -94,24 +71,12 @@ dxpb-server_package() {
 	}
 }
 
-dxpb-ircbot_package() {
-	nopie="Go doesn't yet do PIE"
-	short_desc="${short_desc} - IRC Daemon"
-	conf_files="/etc/dxpb/conf.yml"
-	depends="${sourcepkg}>=${version}_${revision}"
-	pkg_install() {
-#		vmove usr/bin/dxpb-ircbot
-		vmove etc/dxpb/conf.yml
-		vmove etc/sv/dxpb-ircbot
-	}
-}
-
 dxpb-server-all_package() {
 	short_desc="${short_desc} - metapkg for all server pkgs"
 	build_style=meta
 	depends="dxpb-server>=${version}_${revision}
-	dxpb-repoman>=${version}_${revision} dxpb-main>=${version}_${revision}
-	dxpb-ircbot>=${version}_${revision}"
+		dxpb-repoman>=${version}_${revision}
+		dxpb-main>=${version}_${revision}"
 }
 
 dxpb-remote_package() {
