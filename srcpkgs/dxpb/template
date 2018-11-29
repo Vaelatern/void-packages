@@ -1,6 +1,6 @@
 # Template file for 'dxpb'
 pkgname=dxpb
-version=0.0.21
+version=0.0.22
 revision=1
 wrksrc=dxpb-master
 build_wrksrc=src
@@ -14,7 +14,7 @@ maintainer="Toyam Cox <Vaelatern@voidlinux.eu>"
 license="ISC"
 homepage="https://gitlab.com/dxpb/dxpb"
 distfiles="https://gitlab.com/dxpb/dxpb/repository/${version}/archive.tar.gz>${pkgname}-${version}.tgz"
-checksum=35e28163bd96a62e7ec3fd4613e334918d635900ff29dfa8b0b5b652a604e6fd
+checksum=eb9154595b5610f5790c2185d3994a591cf5d35a6d06016a823001c4e20bbc25
 
 system_groups="_dxpb _dxpb_graph _dxpb_ssl"
 system_accounts="_dxpb_import _dxpb_frontend _dxpb_filer _dxpb_build _dxpb_grapher _dxpb_watcher"
