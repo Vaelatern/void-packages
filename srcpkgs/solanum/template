@@ -1,0 +1,22 @@
+# Template file for 'solanum'
+pkgname=solanum
+_commit_hash=be52c4c062d6d3cd3d171e55d993fcc9cf2c5070
+version=0.0.0.0.$_commit_hash
+revision=1
+build_style=gnu-configure
+wrksrc="${pkgname}-${_commit_hash}"
+hostmakedepends="automake libtool bison flex pkg-config util-linux"
+makedepends="libltdl-devel sqlite-devel openssl-devel"
+short_desc="Upcoming IRCd from libera.chat and oftc staff"
+maintainer="Toyam Cox <Vaelatern@voidlinux.org>"
+license="GPL-2.0-only"
+homepage="https://solanum.chat/"
+distfiles="https://github.com/solanum-ircd/solanum/archive/be52c4c062d6d3cd3d171e55d993fcc9cf2c5070.tar.gz"
+checksum=36e16c242ca2678f6e396ec00d26e5a93f5a2a637d7049cf2e601107f5294fe5
+
+pre_configure() {
+	./autogen.sh
+}
+
+# REMARKS:
+# util-linux because it wants column(1) for some docs it builds
