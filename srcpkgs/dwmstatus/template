@@ -1,0 +1,15 @@
+# Template file for 'dwmstatus'
+pkgname=dwmstatus
+version=0.0.1
+revision=1
+create_wrksrc=yes
+build_style=gnu-makefile
+makedepends="libX11-devel"
+short_desc="Status bar for Toyam's dwm"
+maintainer="Toyam Cox <Vaelatern@voidlinux.org>"
+license="MIT"
+homepage="https://github.com/Vaelatern"
+
+pre_build() {
+	cp "${FILESDIR}"/* "${wrksrc}"
+}
