@@ -12,6 +12,10 @@
 
 #define UNKNOWN_STR "n/a"
 
+#ifndef BATTERY
+#define BATTERY "BAT0"
+#endif
+
 #include <X11/Xlib.h>
 
 char *tz = "America/New_York";
@@ -244,10 +248,10 @@ detect_arp_spoofing(void)
 	return "";
 }
 
-#define BATT_NOW        "/sys/class/power_supply/BAT0/energy_now"
-#define BATT_FULL       "/sys/class/power_supply/BAT0/energy_full"
-#define BATT_STATUS       "/sys/class/power_supply/BAT0/status"
-#define BATT_POWER       "/sys/class/power_supply/BAT0/power_now"
+#define BATT_NOW        "/sys/class/power_supply/" BATTERY "/charge_now"
+#define BATT_FULL       "/sys/class/power_supply/" BATTERY "/charge_full_design"
+#define BATT_STATUS     "/sys/class/power_supply/" BATTERY "/status"
+#define BATT_POWER      "/sys/class/power_supply/" BATTERY "/current_now"
 
 char *
 getbattery(){
@@ -269,9 +273,9 @@ getbattery(){
         fclose(fp);
         if (strcmp(status,"Charging") == 0)
             s = '+';
-        if (strcmp(status,"Discharging") == 0 && lnum3 != 0)
+	else if (strcmp(status,"Discharging") == 0 && lnum3 != 0)
             s = '-';
-        if (strcmp(status,"Full") == 0 || lnum3 == 0)
+	else if (strcmp(status,"Not charging") == 0 || lnum3 == 0)
             s = '=';
         return smprintf("%c%ld%%", s,(lnum1/(lnum2/100)));
     }

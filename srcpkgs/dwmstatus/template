@@ -9,6 +9,7 @@ short_desc="Status bar for Toyam's dwm"
 maintainer="Toyam Cox <Vaelatern@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/Vaelatern"
+CFLAGS='-DBATTERY="\"BAT1\""'
 
 pre_build() {
 	cp "${FILESDIR}"/* "${wrksrc}"
