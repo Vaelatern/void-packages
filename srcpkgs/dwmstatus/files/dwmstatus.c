@@ -340,6 +340,7 @@ int
 main(void)
 {
 	time_t count5secs = 0;
+	time_t count10secs = 0;
 	time_t count1mins = 0;
 	time_t count10min = 0;
 	char *status = NULL;
@@ -359,7 +360,7 @@ main(void)
 	}
 
 	parse_netdev(&parA, &parB);
-	for (;;sleep(1)) {
+	for (;;sleep(5)) {
 		if (runevery(&count10min, 600)) {
 			mitm = detect_arp_spoofing();
 		}
@@ -367,7 +368,7 @@ main(void)
 			free(battery);
 			battery = getbattery();
 		}
-		if (runevery(&count5secs, 5)) {
+		if (runevery(&count10secs, 5)) {
 			free(ram);
 			ram = ram_perc();
 		}
@@ -375,7 +376,7 @@ main(void)
 		free(tmutc);
 		free(avgs);
 		avgs = loadavg();
-		tm = mktimes("%F %T", tz);
+		tm = mktimes("%F %H:%M", tz);
 		tmutc = mktimes("%H:%MZ", tzutc);
 		netstats = get_netusage(&parA, &parB);
 
