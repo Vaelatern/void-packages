@@ -1,6 +1,7 @@
 
 all: dwmstatus
 
+dwmstatus: CFLAGS+= -g
 dwmstatus: LDLIBS+= -lX11
 dwmstatus: dwmstatus.o
 

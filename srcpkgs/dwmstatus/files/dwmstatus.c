@@ -93,11 +93,17 @@ calculate_speed(char *speedstr, unsigned long long int newval, unsigned long lon
 {
 	double speed;
 	speed = (newval - oldval) / 1024.0;
-	if (speed > 1024.0) {
-	    speed /= 1024.0;
-	    sprintf(speedstr, "%.3f M", speed);
+	if (speed > 1073741824.0) {
+		speed /= 1073741824.0;
+		snprintf(speedstr, 15, "%.3f T", speed);
+	} else if (speed > 1048576.0) {
+		speed /= 1048576.0;
+		snprintf(speedstr, 15, "%.3f G", speed);
+	} else if (speed >= 1024.0) {
+		speed /= 1024.0;
+		snprintf(speedstr, 15, "%.3f M", speed);
 	} else {
-	    sprintf(speedstr, "%.2f K", speed);
+		snprintf(speedstr, 15, "%.2f K", speed);
 	}
 }
 
@@ -107,7 +113,7 @@ get_netusage(unsigned long long int *rec, unsigned long long int *sent)
 	unsigned long long int newrec, newsent;
 	newrec = newsent = 0;
 	char downspeedstr[15], upspeedstr[15];
-	static char retstr[42];
+	static char retstr[39];
 	int retval;
 
 	retval = parse_netdev(&newrec, &newsent);
@@ -119,7 +125,7 @@ get_netusage(unsigned long long int *rec, unsigned long long int *sent)
 	calculate_speed(downspeedstr, newrec, *rec);
 	calculate_speed(upspeedstr, newsent, *sent);
 
-	sprintf(retstr, "▼ %s  ▲ %s", downspeedstr, upspeedstr);
+	snprintf(retstr, 39, "▼ %s  ▲ %s", downspeedstr, upspeedstr);
 
 	*rec = newrec;
 	*sent = newsent;
