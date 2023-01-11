@@ -1,7 +1,8 @@
 # Template file for 'ipxe'
 pkgname=ipxe
-version=1.21.1
+version=1.21.1.20230111
 revision=1
+_commit=ab19546386b13d6c54aea1647fac06960c544efc
 build_style=gnu-makefile
 make_use_env=yes
 restricted="No, but THIS PACKAGE MUST NEVER BE MERGED TO VOID PACKAGES"
@@ -14,8 +15,8 @@ short_desc="Open Source Boot Firmware"
 maintainer="Toyam Cox <Vaelatern@voidlinux.org>"
 license="GPL-2.0-only"
 homepage="https://ipxe.org/"
-distfiles="https://github.com/ipxe/ipxe/archive/v${version}.tar.gz"
-checksum=16e8d51c48d8a120332cf0dc32b473acc5d179e3975ced208eb21caf3b6528dc
+distfiles="https://github.com/ipxe/ipxe/archive/${_commit}.tar.gz"
+checksum=b61964de4f771884c823b16fe9b8b42403edc7d09a51e1b18a3f6e53f8266bfa
 
 pre_build() {
 	cp "${FILESDIR}/undionly.ipxe" undionly.ipxe
