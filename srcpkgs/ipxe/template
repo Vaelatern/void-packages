@@ -8,7 +8,7 @@ make_use_env=yes
 restricted="No, but THIS PACKAGE MUST NEVER BE MERGED TO VOID PACKAGES"
 build_wrksrc=src
 make_build_args="EMBED=undionly.ipxe"
-make_build_target="bin/undionly.kpxe"
+make_build_target="bin-x86_64-efi/ipxe.efi bin-x86_64-efi/snponly.efi"
 hostmakedepends="perl"
 makedepends="liblzma-devel"
 short_desc="Open Source Boot Firmware"
@@ -24,5 +24,6 @@ pre_build() {
 
 do_install() {
 	vmkdir usr/share/ipxe
-	vinstall bin/undionly.kpxe 444 usr/share/ipxe
+	vinstall bin-x86_64-efi/ipxe.efi 444 usr/share/ipxe
+	vinstall bin-x86_64-efi/snponly.efi 444 usr/share/ipxe
 }
