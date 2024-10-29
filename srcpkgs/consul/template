@@ -1,7 +1,7 @@
 # Template file for 'consul'
 pkgname=consul
-version=1.16.2
-revision=2
+version=1.20.0
+revision=1
 build_style=go
 go_import_path="github.com/hashicorp/consul"
 _git_commit=5e08e229dbdaed5adf3ca99afe9df247c51507da
@@ -11,7 +11,7 @@ maintainer="iaroki <iaroki@protonmail.com>"
 license="BUSL-1.1"
 homepage="https://www.consul.io/"
 distfiles="https://${go_import_path}/archive/v${version}.tar.gz"
-checksum=0dacc7eeacd19a687e20fa83ae88444d2a5336a9150cfc116d39a39b31d5829d
+checksum=b78f8f52e63c741cc28965be1f044ebc48e2a8c4db8f9d41a5459fd60dcaf21a
 system_accounts="_consul"
 make_dirs="/etc/consul.d 0755 root _consul
  /var/lib/consul 0750 _consul _consul"
